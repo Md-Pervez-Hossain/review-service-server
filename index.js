@@ -20,6 +20,12 @@ async function run() {
       .db("foodServiceReview")
       .collection("foodServiceData");
     console.log("database connected");
+
+    app.post("/addservice", async (req, res) => {
+      const service = req.body;
+      const result = await foodServiceCollection.insertOne(service);
+      res.send(result);
+    });
   } finally {
   }
 }
@@ -28,6 +34,7 @@ run().catch((error) => console.error(error));
 app.get("/", (req, res) => {
   res.send("server Running");
 });
+
 app.listen(port, () => {
   console.log("server running");
 });
