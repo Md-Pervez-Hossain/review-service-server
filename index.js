@@ -14,11 +14,16 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
-client.connect((err) => {
-  const collection = client.db("test").collection("devices");
-  // perform actions on the collection object
-  client.close();
-});
+async function run() {
+  try {
+    const foodServiceCollection = client
+      .db("foodServiceReview")
+      .collection("foodServiceData");
+    console.log("database connected");
+  } finally {
+  }
+}
+run().catch((error) => console.error(error));
 
 app.get("/", (req, res) => {
   res.send("server Running");
