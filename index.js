@@ -21,6 +21,13 @@ async function run() {
       .collection("foodServiceData");
     console.log("database connected");
 
+    app.get("/addservice", async (req, res) => {
+      const query = {};
+      const cursor = foodServiceCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
     app.post("/addservice", async (req, res) => {
       const service = req.body;
       const result = await foodServiceCollection.insertOne(service);
