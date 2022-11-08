@@ -21,6 +21,10 @@ async function run() {
       .collection("foodServiceData");
     console.log("database connected");
 
+    const reviewsCollection = client
+      .db("foodServiceReview")
+      .collection("reviews");
+
     app.get("/addservice", async (req, res) => {
       const query = {};
       const cursor = foodServiceCollection.find(query);
