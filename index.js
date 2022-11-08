@@ -25,6 +25,11 @@ async function run() {
       .db("foodServiceReview")
       .collection("reviews");
 
+    app.post("/reviews", async (req, res) => {
+      const review = req.body;
+      const result = await reviewsCollection.insertOne(review);
+      res.send(result);
+    });
     app.get("/addservice", async (req, res) => {
       const query = {};
       const cursor = foodServiceCollection.find(query);
