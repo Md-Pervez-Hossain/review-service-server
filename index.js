@@ -33,11 +33,29 @@ async function run() {
     });
 
     app.get("/reviews", async (req, res) => {
-      const query = {};
+      let query = {};
+      if (req.query.foodService) {
+        query = {
+          foodService: req.query.foodService,
+        };
+      }
       const cursor = reviewsCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
     });
+
+    app.get("/reviewss", async (req, res) => {
+      let query = {};
+      if (req.query.email) {
+        query = {
+          email: req.query.email,
+        };
+      }
+      const cursor = reviewsCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
     app.delete("/reviews/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -45,6 +63,12 @@ async function run() {
       res.send(result);
     });
     app.get("/addservice", async (req, res) => {
+      const query = {};
+      const cursor = foodServiceCollection.find(query);
+      const result = await cursor.limit(3).toArray();
+      res.send(result);
+    });
+    app.get("/addservices", async (req, res) => {
       const query = {};
       const cursor = foodServiceCollection.find(query);
       const result = await cursor.toArray();
