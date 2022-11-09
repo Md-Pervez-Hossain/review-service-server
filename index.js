@@ -25,10 +25,25 @@ async function run() {
     const reviewsCollection = client
       .db("foodServiceReview")
       .collection("reviews");
+    const feedBackCollection = client
+      .db("foodServiceReview")
+      .collection("feedback");
 
     app.post("/reviews", async (req, res) => {
       const review = req.body;
       const result = await reviewsCollection.insertOne(review);
+      res.send(result);
+    });
+
+    app.post("/feedback", async (req, res) => {
+      const feedback = req.body;
+      const result = await feedBackCollection.insertOne(feedback);
+      res.send(result);
+    });
+    app.get("/feedback", async (req, res) => {
+      const query = {};
+      const cursor = feedBackCollection.find(query);
+      const result = await cursor.toArray();
       res.send(result);
     });
 
@@ -87,8 +102,16 @@ async function run() {
 
     app.delete("/reviews/:id", async (req, res) => {
       const id = req.params.id;
+      console.log("trying to delete", id);
       const query = { _id: ObjectId(id) };
       const result = await reviewsCollection.deleteOne(query);
+      res.send(result);
+    });
+    app.delete("/addservices/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log("trying to delete", id);
+      const query = { _id: ObjectId(id) };
+      const result = await foodServiceCollection.deleteOne(query);
       res.send(result);
     });
     app.get("/addservice", async (req, res) => {
