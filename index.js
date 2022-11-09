@@ -34,12 +34,15 @@ async function run() {
 
     app.get("/reviews", async (req, res) => {
       let query = {};
+      const options = {
+        sort: { time: -1 },
+      };
       if (req.query.foodService) {
         query = {
           foodService: req.query.foodService,
         };
       }
-      const cursor = reviewsCollection.find(query);
+      const cursor = reviewsCollection.find(query, options);
       const result = await cursor.toArray();
       res.send(result);
     });
@@ -53,6 +56,13 @@ async function run() {
       }
       const cursor = reviewsCollection.find(query);
       const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get("/reviewss/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await reviewsCollection.findOne(query);
       res.send(result);
     });
 
