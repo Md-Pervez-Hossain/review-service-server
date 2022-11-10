@@ -1,7 +1,9 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const cors = require("cors");
-require("dotenv").config();
+
+const jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
@@ -15,6 +17,25 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
+
+function verifyToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).send({ message: "UnAuthorize user" });
+  }
+  const token = authHeader.split(" ")[1];
+  console.log(token);
+  console.log(process.env.DB_ACCESSTOKEN);
+  jwt.verify(token, process.env.DB_ACCESSTOKEN, function (err, decoded) {
+    console.log("err", err);
+    console.log("decoded", decoded);
+    if (err) {
+      return res.status(401).send({ message: "UnAuthorize user" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+}
 async function run() {
   try {
     const foodServiceCollection = client
@@ -29,6 +50,13 @@ async function run() {
       .db("foodServiceReview")
       .collection("feedback");
 
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.DB_ACCESSTOKEN, {
+        expiresIn: "10h",
+      });
+      res.send({ token });
+    });
     app.post("/feedback", async (req, res) => {
       const feedback = req.body;
       const result = await feedBackCollection.insertOne(feedback);
@@ -61,7 +89,13 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/reviewss", async (req, res) => {
+    app.get("/reviewss", verifyToken, async (req, res) => {
+      const decoded = req.decoded;
+      console.log("inside decoded", decoded);
+      console.log(decoded.email);
+      if (decoded.email !== req.query.email) {
+        res.status(403).send({ message: "Forbiden" });
+      }
       let query = {};
       if (req.query.email) {
         query = {
