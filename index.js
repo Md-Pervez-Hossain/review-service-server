@@ -29,12 +29,6 @@ async function run() {
       .db("foodServiceReview")
       .collection("feedback");
 
-    app.post("/reviews", async (req, res) => {
-      const review = req.body;
-      const result = await reviewsCollection.insertOne(review);
-      res.send(result);
-    });
-
     app.post("/feedback", async (req, res) => {
       const feedback = req.body;
       const result = await feedBackCollection.insertOne(feedback);
@@ -44,6 +38,11 @@ async function run() {
       const query = {};
       const cursor = feedBackCollection.find(query);
       const result = await cursor.toArray();
+      res.send(result);
+    });
+    app.post("/reviews", async (req, res) => {
+      const review = req.body;
+      const result = await reviewsCollection.insertOne(review);
       res.send(result);
     });
 
@@ -114,19 +113,13 @@ async function run() {
       const result = await foodServiceCollection.deleteOne(query);
       res.send(result);
     });
-    app.get("/addservice", async (req, res) => {
-      const query = {};
-      const cursor = foodServiceCollection.find(query);
-      const result = await cursor.limit(3).toArray();
-      res.send(result);
-    });
+
     app.get("/addservices", async (req, res) => {
       const query = {};
       const cursor = foodServiceCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
     });
-
     app.get("/addservice/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -134,6 +127,12 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/addservice", async (req, res) => {
+      const query = {};
+      const cursor = foodServiceCollection.find(query);
+      const result = await cursor.limit(3).toArray();
+      res.send(result);
+    });
     app.post("/addservice", async (req, res) => {
       const service = req.body;
       const result = await foodServiceCollection.insertOne(service);
