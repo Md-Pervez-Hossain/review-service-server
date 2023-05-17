@@ -167,6 +167,12 @@ async function run() {
       const result = await cursor.limit(3).toArray();
       res.send(result);
     });
+    app.get("/singleFood/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const cursor = await foodServiceCollection.findOne(query);
+      res.send(cursor);
+    });
     app.post("/addservice", async (req, res) => {
       const service = req.body;
       const result = await foodServiceCollection.insertOne(service);
