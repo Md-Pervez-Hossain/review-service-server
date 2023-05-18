@@ -73,9 +73,9 @@ async function run() {
         total_amount: orderInfo?.foodPrice,
         currency: "BDT",
         tran_id: transactionId, // use unique tran_id for each api call
-        success_url: `http://localhost:5000/payment/success?transactionId=${transactionId}`,
-        fail_url: "http://localhost:5000/payment/success",
-        cancel_url: "http://localhost:5000/payment/success",
+        success_url: `https://b6a11-service-review-server-side-md-pervez-hossain.vercel.app/payment/success?transactionId=${transactionId}`,
+        fail_url: "http://localhost:5000/payment/fail",
+        cancel_url: "http://localhost:5000/payment/calcel",
         ipn_url: "http://localhost:3030/ipn",
         shipping_method: "Courier",
         product_name: orderInfo?.FoodsName,
@@ -123,7 +123,9 @@ async function run() {
         { $set: { paid: true, paidAt: new Date() } }
       );
       if (result.modifiedCount > 0) {
-        res.redirect(`http://localhost:3000/payment/success/${transactionId}`);
+        res.redirect(
+          `https://review-service-website.vercel.app/payment/success/${transactionId}`
+        );
       }
     });
 
