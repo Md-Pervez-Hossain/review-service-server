@@ -60,6 +60,12 @@ async function run() {
       .db("foodServiceReview")
       .collection("AllFoodsOrderInfo");
     const FoodsBlog = client.db("foodServiceReview").collection("FoodsBlog");
+    const usersCollections = client
+      .db("foodServiceReview")
+      .collection("usersCollections");
+    const cartProductCollections = client
+      .db("foodServiceReview")
+      .collection("cartProductCollections");
 
     //ssl commerce start
 
@@ -70,15 +76,15 @@ async function run() {
       console.log(orderInfo);
       const transactionId = new ObjectId().toString();
       const data = {
-        total_amount: orderInfo?.foodPrice,
+        total_amount: orderInfo?.totalPrice,
         currency: "BDT",
         tran_id: transactionId, // use unique tran_id for each api call
-        success_url: `https://b6a11-service-review-server-side-md-pervez-hossain.vercel.app/payment/success?transactionId=${transactionId}`,
+        success_url: `http://localhost:5000/payment/success?transactionId=${transactionId}`,
         fail_url: "http://localhost:5000/payment/fail",
         cancel_url: "http://localhost:5000/payment/calcel",
         ipn_url: "http://localhost:3030/ipn",
         shipping_method: "Courier",
-        product_name: orderInfo?.FoodsName,
+        product_name: orderInfo?.productName,
         product_category: "Electronic",
         product_profile: "general",
         cus_name: orderInfo?.cus_name,
@@ -109,7 +115,6 @@ async function run() {
           transactionId,
           paid: false,
         });
-
         res.send({ url: GatewayPageURL });
       });
     });
@@ -123,18 +128,56 @@ async function run() {
         { $set: { paid: true, paidAt: new Date() } }
       );
       if (result.modifiedCount > 0) {
-        res.redirect(
-          `https://review-service-website.vercel.app/payment/success/${transactionId}`
-        );
+        res.redirect(`http://localhost:3000/payment/success/${transactionId}`);
       }
     });
 
+    // suers start
+
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      console.log(user);
+      const { username, email } = req.body;
+      if (!username || !email) {
+        return res
+          .status(400)
+          .json({ error: "Name and email are required fields." });
+      }
+      const result = await usersCollections.insertOne(user);
+      res.send(result);
+    });
+
+    app.get("/users", async (req, res) => {
+      const query = {};
+      const result = await usersCollections.find(query).toArray();
+      res.send(result);
+    });
+    app.get("/users/email/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await usersCollections.findOne(query);
+      res.send(result);
+    });
+
+    // users end
+    //cart start
+
+    app.post("/cart", async (req, res) => {
+      const cartProduct = req.body;
+      const cursor = await cartProductCollections.insertOne(cartProduct);
+      res.send(cursor);
+    });
+    app.get("/cart", async (req, res) => {
+      const query = {};
+      const result = await cartProductCollections.find(query).toArray();
+      res.send(result);
+    });
+    //cart end
     app.get("/orders", async (req, res) => {
       const query = {};
       const result = await AllFoodsOrderInfo.find(query).toArray();
       res.send(result);
     });
-
     app.put("/orders/:id", async (req, res) => {
       const id = req.params.id;
       const orders = req.body;
