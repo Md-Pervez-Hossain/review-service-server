@@ -167,6 +167,22 @@ async function run() {
       const cursor = await cartProductCollections.insertOne(cartProduct);
       res.send(cursor);
     });
+
+    app.delete("/cart/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      try {
+        const result = await cartProductCollections.deleteOne(query);
+        if (result.deletedCount === 0) {
+          res.status(404).send("Document not found");
+        } else {
+          res.send("Document deleted successfully");
+        }
+      } catch (error) {
+        console.error("Error deleting document:", error);
+        res.status(500).send("Error deleting document");
+      }
+    });
     app.get("/cart", async (req, res) => {
       const query = {};
       const result = await cartProductCollections.find(query).toArray();
